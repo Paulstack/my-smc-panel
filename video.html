@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Watch Videos & Earn</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+  <h1>Watch and Earn</h1>
+  <h3>Total Earnings: <span id="earnings">₦0</span></h3>
+  <div id="videos">
+    <h2>Watch These Videos</h2>
+    <!-- Example video tasks -->
+    <div class="video-task" data-video-id="wuGIBcKcsL4" data-earnings="30">
+      <iframe id="ytplayer-1" width="320" height="240" src="https://www.youtube.com/embed/wuGlBcKcsL4?enablejsapi=1" allowfullscreen title="Watch YouTube video wuGlBcKcsL4"></iframe>
+      <button class="complete-btn" disabled>I Watched, Liked & Subscribed</button>
+      <div class="status">Not Completed</div>
+    </div>
+    <div class="video-task" data-video-id="NIAQrcwkFB8" data-earnings="20">
+      <iframe id="ytplayer-2" width="320" height="240" src="https://www.youtube.com/embed/NIAQrcwkFB8?enablejsapi=1" allowfullscreen title="Watch YouTube video NIAQrcwkFB8"></iframe>
+      <button class="complete-btn" disabled>I Watched, Liked & Subscribed</button>
+      <div class="status">Not Completed</div>
+    </div>
+    <!-- Add more .video-task blocks as needed -->
+  </div>
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB67fFNFiHMYZqgnV3LDT4GNU9WUHKdCXY",
+      authDomain: "my-smc-panel.firebaseapp.com",
+      projectId: "my-smc-panel",
+      storageBucket: "my-smc-panel.appspot.com",
+      messagingSenderId: "530807938141",
+      appId: "1:530807938141:web:9f33702985a6476783c1b4"
+    };
+
+    // Initialize Firebase only if not already initialized
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Load and display earnings
+    function loadEarnings() {
+      const user = auth.currentUser;
+      if (!user) return;
+      db.collection("users").doc(user.uid).get().then(doc => {
+        const data = doc.data() || {};
+        if (document.getElementById("earnings")) {
+          document.getElementById("earnings").textContent = `₦${data.earnings || 0}`;
+        }
+      });
+    }
+
+    // Enable the button after video ends (for all videos)
+    function onYouTubeIframeAPIReady() {
+      document.querySelectorAll('.video-task').forEach((videoTask, idx) => {
+        const iframe = videoTask.querySelector('iframe');
+        const btn = videoTask.querySelector('.complete-btn');
+        if (!iframe.id) iframe.id = 'ytplayer-' + (idx + 1);
+        new YT.Player(iframe.id, {
+          events: {
+            'onStateChange': function(event) {
+              if (event.data === YT.PlayerState.ENDED) {
+                btn.disabled = false;
+              }
+            }
+          }
+        });
+      });
+    }
+    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+    // Handle earning when button is clicked
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load earnings on page load if logged in
+      auth.onAuthStateChanged(user => {
+        if (user) loadEarnings();
+      });
+
+      document.querySelectorAll('.complete-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const videoDiv = btn.closest('.video-task');
+          const videoId = videoDiv.dataset.videoId;
+          const earnings = parseInt(videoDiv.dataset.earnings) || 10; // Default to 10 if not set
+
+          const user = auth.currentUser;
+          if (!user) {
+            alert("Please log in first.");
+            return;
+          }
+
+          const userRef = db.collection("users").doc(user.uid);
+          const userDoc = await userRef.get();
+          const completed = userDoc.data()?.completed || [];
+          if (completed.includes(videoId)) {
+            alert("You have already completed this video.");
+            return;
+          }
+
+          await userRef.set({
+            earnings: firebase.firestore.FieldValue.increment(earnings),
+            completed: firebase.firestore.FieldValue.arrayUnion(videoId)
+          }, { merge: true });
+
+          videoDiv.querySelector('.status').textContent = `Completed - ₦${earnings}`;
+          btn.disabled = true;
+          loadEarnings();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

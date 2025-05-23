@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - YouTube Reward Site</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>Admin Panel</h1>
+
+  <!-- Login Form -->
+  <div id="login-form" style="display:none;">
+    <h2>Admin Login</h2>
+    <input type="email" id="email" placeholder="Admin Email"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- Admin Content -->
+  <div id="admin-content" style="display:none;">
+    <button id="reset-btn">Reset All Earnings</button>
+    <button onclick="logout()">Logout</button>
+    <h2>All Users</h2>
+    <table border="1" cellpadding="5">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Earnings</th>
+          <th>Completed Videos</th>
+        </tr>
+      </thead>
+      <tbody id="users-table">
+        <!-- User rows will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Not Admin Message -->
+  <div id="not-admin" style="display:none;">
+    <h2>Access Denied</h2>
+    <p>You must be logged in as the admin to view this page.</p>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyB67fFNFiHMYZqgnV3LDT4GNU9WUHKdCXY",
+      authDomain: "my-smc-panel.firebaseapp.com",
+      projectId: "my-smc-panel",
+      storageBucket: "my-smc-panel.appspot.com",
+      messagingSenderId: "530807938141",
+      appId: "1:530807938141:web:9f33702985a6476783c1b4"
+    };
+
+    // Initialize Firebase only if not already initialized
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const ADMIN_EMAIL = "polsaint4@gmail.com"; // Set your admin email
+
+    // Show/hide sections based on auth state
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        document.getElementById("login-form").style.display = "block";
+        document.getElementById("admin-content").style.display = "none";
+        document.getElementById("not-admin").style.display = "none";
+      } else if (user.email === ADMIN_EMAIL) {
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("admin-content").style.display = "block";
+        document.getElementById("not-admin").style.display = "none";
+        loadUsers();
+      } else {
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("admin-content").style.display = "none";
+        document.getElementById("not-admin").style.display = "block";
+      }
+    });
+
+    // Login function
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password)
+        .catch(error => {
+          alert("Login failed: " + error.message);
+        });
+    }
+
+    // Logout function
+    function logout() {
+      auth.signOut();
+    }
+
+    // Load all users and display in table
+    function loadUsers() {
+      db.collection("users").get().then(snapshot => {
+        const tbody = document.getElementById("users-table");
+        tbody.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${doc.id}</td>
+            <td>₦${data.earnings || 0}</td>
+            <td>${(data.completed || []).join(", ")}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    // Reset all earnings
+    document.getElementById("reset-btn").onclick = function() {
+      if (!confirm("Are you sure you want to reset all users' earnings?")) return;
+      db.collection("users").get().then(snapshot => {
+        const batch = db.batch();
+        snapshot.forEach(doc => {
+          batch.update(doc.ref, { earnings: 0 });
+        });
+        return batch.commit();
+      }).then(() => {
+        alert("All earnings have been reset.");
+        loadUsers();
+      });
+    };
+  </script>
+</body>
+</html>
