@@ -124,3 +124,45 @@ th {
 tr:nth-child(even) {
   background: #f7f9fa;
 }
+
+h1 {
+  font-size: 1.1em;
+  margin-bottom: 16px;
+}
+
+/* Add this to the end of your style.css file */
+
+@media (max-width: 600px) {
+  body {
+    padding: 0;
+  }
+  #auth, #admin-panel, #admin-content, #not-admin, #login-form, #videos {
+    max-width: 98vw;
+    padding: 12px 4vw;
+    box-sizing: border-box;
+  }
+  .video-task {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+  .video-task iframe {
+    width: 100% !important;
+    max-width: 100vw;
+    margin-right: 0;
+    margin-bottom: 12px;
+    min-width: 0;
+  }
+  button, input[type="email"], input[type="password"] {
+    width: 100%;
+    margin: 8px 0;
+    font-size: 1em;
+  }
+  table, th, td {
+    font-size: 0.95em;
+    padding: 6px 4px;
+  }
+  h1, h2, h3 {
+    font-size: 1.2em;
+  }
+}
