@@ -12,6 +12,31 @@ h1, h2, h3 {
   color: #2a7ae2;
 }
 
+/* Headings */
+h1 {
+  font-size: 2em;
+  margin: 24px 0 12px 0;
+  text-align: center;
+  color: #2a7ae2;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 1.4em;
+  margin: 18px 0 8px 0;
+  text-align: center;
+  color: #2a7ae2;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 1.1em;
+  margin: 12px 0 8px 0;
+  text-align: center;
+  color: #2a7ae2;
+  font-weight: 500;
+}
+
 #auth, #admin-panel, #admin-content, #not-admin, #login-form {
   max-width: 400px;
   margin: 30px auto;
@@ -70,36 +95,52 @@ a:hover {
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
 }
 
+/* Video task improvements */
 .video-task {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   background: #f3f7fa;
   border-radius: 8px;
   margin-bottom: 24px;
   padding: 16px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  gap: 16px;
 }
 
 .video-task iframe {
   flex: 1 1 320px;
   max-width: 340px;
   border-radius: 8px;
-  margin-right: 24px;
+  margin-right: 0;
   border: none;
+  display: block;
 }
 
-.video-task > div, .video-task > button {
+.video-task > div,
+.video-task > button,
+.video-task > h2,
+.video-task > h1 {
   margin: 8px 0;
+  width: 100%;
+  text-align: left;
+}
+
+.video-title {
+  font-size: 1.1em;
+  color: #155a9c;
+  margin: 8px 0 0 0;
+  font-weight: 600;
 }
 
 .status {
   font-weight: bold;
   color: #388e3c;
-  margin-left: 12px;
+  margin-left: 0;
+  margin-top: 6px;
 }
 
-.countdown, .timer {
+countdown, .timer {
   color: #e67e22;
   font-weight: bold;
 }
@@ -130,8 +171,16 @@ h1 {
   margin-bottom: 16px;
 }
 
-/* Add this to the end of your style.css file */
+/* Make the button inside .video-task auto-sized */
+.video-task > button {
+  width: auto !important;
+  min-width: 160px;
+  display: inline-block;
+  text-align: center;
+  margin: 8px 0;
+}
 
+/* If you want to keep full-width buttons on mobile, add this inside your media query: */
 @media (max-width: 600px) {
   body {
     padding: 0;
@@ -141,10 +190,20 @@ h1 {
     padding: 12px 4vw;
     box-sizing: border-box;
   }
+  h1 {
+    font-size: 1.3em;
+  }
+  h2 {
+    font-size: 1.1em;
+  }
+  h3 {
+    font-size: 1em;
+  }
   .video-task {
     flex-direction: column;
     align-items: stretch;
     padding: 10px;
+    gap: 0;
   }
   .video-task iframe {
     width: 100% !important;
@@ -162,7 +221,8 @@ h1 {
     font-size: 0.95em;
     padding: 6px 4px;
   }
-  h1, h2, h3 {
-    font-size: 1.2em;
+  .video-task > button {
+    width: 100% !important;
+    min-width: 0;
   }
 }

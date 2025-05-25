@@ -40,12 +40,17 @@ function login() {
 }
 
 function register() {
+  const name = document.getElementById("name").value;
+  const whatsapp = document.getElementById("whatsapp").value;
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
-      // Create user document in Firestore
+      // Save extra info to Firestore
       return db.collection("users").doc(userCredential.user.uid).set({
+        name: name,
+        whatsapp: whatsapp,
+        email: email,
         earnings: 0,
         completed: []
       });
@@ -83,6 +88,21 @@ function resetEarnings() {
     alert("All earnings have been reset.");
     loadEarnings();
   });
+}
+
+function forgotPassword() {
+  const email = document.getElementById("email").value;
+  if (!email) {
+    alert("Please enter your email address above first.");
+    return;
+  }
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      alert("Password reset email sent! Please check your inbox.");
+    })
+    .catch(error => {
+      alert("Error: " + error.message);
+    });
 }
 
 // Show/hide admin panel and load earnings on auth state change

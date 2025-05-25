@@ -13,11 +13,15 @@
 <body>
   <h1>Login to Watch & Earn</h1>
   <div id="auth">
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="text" id="whatsapp" placeholder="WhatsApp Number">
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Password">
     <button onclick="login()">Login</button>
     <button onclick="register()">Register</button>
     <button onclick="logout()">Logout</button>
+    <br>
+    <a href="#" onclick="forgotPassword(); return false;" style="color: blueviolet;">Forgot Password?</a>
   </div>
 
   <h2>Your Earnings: <span id="earnings">₦0</span></h2>
