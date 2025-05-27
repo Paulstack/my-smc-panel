@@ -40,10 +40,16 @@ function login() {
 }
 
 function register() {
-  const name = document.getElementById("name").value;
-  const whatsapp = document.getElementById("whatsapp").value;
-  const email = document.getElementById("email").value;
+  const name = document.getElementById("name").value.trim();
+  const whatsapp = document.getElementById("whatsapp").value.trim();
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+
+  if (!name || !whatsapp || !email || !password) {
+    alert("Please fill in all fields before registering.");
+    return;
+  }
+
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
       // Save extra info to Firestore
@@ -105,6 +111,31 @@ function forgotPassword() {
     });
 }
 
+function updateUserInfo() {
+  const name = document.getElementById("update-name").value.trim();
+  const whatsapp = document.getElementById("update-whatsapp").value.trim();
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in to update your info.");
+    return;
+  }
+  if (!name || !whatsapp) {
+    alert("Please fill in both fields to update your info.");
+    return;
+  }
+  db.collection("users").doc(user.uid).update({
+    name: name,
+    whatsapp: whatsapp
+  }).then(() => {
+    alert("Information updated!");
+    // Optionally, update the main form fields as well
+    document.getElementById("name").value = name;
+    document.getElementById("whatsapp").value = whatsapp;
+  }).catch(error => {
+    alert("Update failed: " + error.message);
+  });
+}
+
 // Show/hide admin panel and load earnings on auth state change
 auth.onAuthStateChanged(user => {
   if (user) {
@@ -114,6 +145,13 @@ auth.onAuthStateChanged(user => {
     } else if (document.getElementById("admin-panel")) {
       document.getElementById("admin-panel").style.display = "none";
     }
+    document.getElementById("update-info").style.display = "block";
+    // Optionally, prefill update fields
+    db.collection("users").doc(user.uid).get().then(doc => {
+      const data = doc.data() || {};
+      document.getElementById("update-name").value = data.name || "";
+      document.getElementById("update-whatsapp").value = data.whatsapp || "";
+    });
   } else {
     if (document.getElementById("earnings")) {
       document.getElementById("earnings").textContent = "₦0";
@@ -121,6 +159,7 @@ auth.onAuthStateChanged(user => {
     if (document.getElementById("admin-panel")) {
       document.getElementById("admin-panel").style.display = "none";
     }
+    document.getElementById("update-info").style.display = "none";
   }
 });
 

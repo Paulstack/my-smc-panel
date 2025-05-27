@@ -30,6 +30,9 @@
       <thead>
         <tr>
           <th>User ID</th>
+          <th>Name</th>
+          <th>WhatsApp</th>
+          <th>Email</th>
           <th>Earnings</th>
           <th>Completed Videos</th>
         </tr>
@@ -110,6 +113,9 @@
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${doc.id}</td>
+            <td>${data.name || ""}</td>
+            <td>${data.whatsapp || ""}</td>
+            <td>${data.email || ""}</td>
             <td>₦${data.earnings || 0}</td>
             <td>${(data.completed || []).join(", ")}</td>
           `;
